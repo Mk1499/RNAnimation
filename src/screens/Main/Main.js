@@ -7,7 +7,7 @@ import {
   ScrollView,
   Image,
   Animated,
-  PanResponder
+  TouchableOpacity,
 } from 'react-native';
 import {Header, Icon} from 'native-base';
 // import Icon from 'react-native-ionicons';
@@ -24,55 +24,79 @@ export default class Main extends Component {
     this.state = {
       all: [],
       selected: [],
-      pan: new Animated.ValueXY()
+      pan: new Animated.ValueXY(),
+      totalAmount: 0,
+      lastId: 3,
     };
-
-    
   }
 
   componentDidMount() {
     this.setState({
       all: [
-        { id:1,
+        {
+          id: 1,
           name: 'Messi',
           img:
             'https://asset.otro.com/image/authenticated/s--GMXcYeHD--/v1/app/stars/leomessi/avatar/avatar-leomessi',
-          price: '1000',
+          price: 1000,
         },
         {
-          id:2,
+          id: 2,
           name: 'Neymar',
           img:
             'https://i.pinimg.com/564x/df/84/9e/df849ed9c7c1099fb34323210ac00533.jpg',
-          price: '3032',
+          price: 3032,
         },
         {
-          id:3,
+          id: 3,
           name: 'SRK',
           img:
             'https://i.pinimg.com/originals/11/47/03/1147038facc1a5e886aa7be517c9e319.jpg',
-          price: '123',
+          price: 123,
         },
       ],
-      selected : []
+      selected: [],
     });
   }
 
-  _handleSelect = (player) => {
+  _handleSelect = player => {
     // alert(player.name)
     this.setState({
-      all: this.state.all.filter((p) => p.id != player.id),
-      selected : [player,...this.state.selected]
-    })
-  }
+      all: this.state.all.filter(p => p.id != player.id),
+      selected: [player, ...this.state.selected],
+      totalAmount: this.state.totalAmount + player.price,
+    });
+  };
+  addTask = () => {
+    this.setState({
+      all: [
+        {
+          id: this.state.lastId + 1,
+          name: 'SRK',
+          img:
+            'https://i.pinimg.com/originals/11/47/03/1147038facc1a5e886aa7be517c9e319.jpg',
+          price: 123,
+        },
+        ,
+        ...this.state.all,
+      ],
+      lastId: this.state.lastId + 1,
+    });
+  };
+
+  _handleDeSelect = player => {
+    this.setState({
+      selected: this.state.selected.filter(p => p.id != player.id),
+      all: [player, ...this.state.all],
+      totalAmount: this.state.totalAmount - player.price,
+    });
+  };
 
   render() {
-
-
     return (
       <>
         <ScrollView>
-        <Header style={styles.header} />
+          <Header style={styles.header} />
           <Animated.View style={styles.container}>
             <View style={styles.pageTop}>
               <Icon name="radio-button-off" style={styles.icon} />
@@ -87,7 +111,7 @@ export default class Main extends Component {
                       backgroundColor: '#333',
                       padding: 0.02 * Width,
                       opacity: 0.4,
-                      borderRadius:10
+                      borderRadius: 10,
                     },
                     styles.icon,
                   ]}
@@ -96,17 +120,16 @@ export default class Main extends Component {
             </View>
 
             <ScrollView horizontal={true} style={styles.SmallCardContainer}>
-        
-              <View style={styles.add}>
-                <Icon name="add" style={styles.addIcon} /> 
-              </View>
-              {
-              this.state.all.map(player => (
-
-                  <SmallCard key={player.id} data={player} onPress={()=>this._handleSelect(player)} />
-              ))
-            
-            }
+              <TouchableOpacity style={styles.add} onPress={this.addTask}>
+                <Icon name="add" style={styles.addIcon} />
+              </TouchableOpacity>
+              {this.state.all.map(player => (
+                <SmallCard
+                  key={player.id}
+                  data={player}
+                  onPress={() => this._handleSelect(player)}
+                />
+              ))}
             </ScrollView>
             <View style={styles.Tasks}>
               {this.state.selected.length <= 0 ? (
@@ -120,18 +143,31 @@ export default class Main extends Component {
                   />
                   <Text style={styles.dragText}> Drag & Drop Contacts </Text>
                 </>
-              ) :
-              <>
-              {this.state.selected.map((player)=>
-              <ListCard
-                key={Math.random()}
-                data={player}/>
+              ) : (
+                <>
+                  {this.state.selected.map((player, i) => (
+                    <ListCard
+                      key={Math.random()}
+                      data={player}
+                      index={i}
+                      onPress={() => this._handleDeSelect(player)}
+                    />
+                  ))}
+                </>
               )}
-         
-              </>
-              }
             </View>
           </Animated.View>
+          {this.state.totalAmount > 0 ? (
+            <View style={styles.amountView}>
+              <Text style={{fontSize: 15, fontWeight: 'bold'}}>Amount: </Text>
+              <View style={styles.rightPrice}>
+                <Icon name="logo-usd" style={styles.usdIcon} />
+                <Text style={{fontWeight: 'bold'}}>
+                  {this.state.totalAmount}
+                </Text>
+              </View>
+            </View>
+          ) : null}
         </ScrollView>
         <Footer />
       </>
@@ -168,17 +204,17 @@ const styles = StyleSheet.create({
   SmallCardContainer: {
     position: 'relative',
     top: -0.1 * Height,
-    zIndex:222,
+    zIndex: 222,
   },
-  Tasks:{
-    padding:10,
-    borderStyle:"dashed",
-    borderWidth:1 ,
+  Tasks: {
+    padding: 10,
+    borderStyle: 'dashed',
+    borderWidth: 1,
     borderRadius: 10,
-    marginHorizontal : 10,
-    borderColor : 'grey',
+    marginHorizontal: 10,
+    borderColor: 'grey',
     // maxHeight:0.4*Height ,
-    marginBottom:0.1*Height , 
+    marginBottom: 0.1 * Height,
   },
   draggingImg: {
     width: Width,
@@ -191,19 +227,31 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: 'grey',
   },
-  add:{
-   
-    margin : 10 , 
-    width:0.25*Width , 
-    height: 0.22 * Height, 
-    backgroundColor: "#333" , 
-    alignItems:'center',
-    justifyContent:'center',
-    borderRadius:20,
-    zIndex:20
+  add: {
+    margin: 10,
+    width: 0.25 * Width,
+    height: 0.22 * Height,
+    backgroundColor: '#333',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    zIndex: 20,
   },
-  addIcon:{
-    fontSize:40,
-    color:'#eee'
-  }
+  addIcon: {
+    fontSize: 40,
+    color: '#eee',
+  },
+  amountView: {
+    backgroundColor: '#fff',
+    padding: 15,
+    flexDirection: 'row',
+  },
+  rightPrice: {
+    flexDirection: 'row',
+    position: 'relative',
+    left: 0.6 * Width,
+  },
+  usdIcon: {
+    fontSize: 18,
+  },
 });

@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 20,
-    marginLeft: -0.12 * Width,
+    marginLeft: -0.05 * Width,
   },
   doneView: {
     backgroundColor: '#59d89d',
