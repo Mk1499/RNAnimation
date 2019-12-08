@@ -76,7 +76,7 @@ export default class Main extends Component {
           img:
             'https://i.pinimg.com/originals/11/47/03/1147038facc1a5e886aa7be517c9e319.jpg',
           price: 123,
-        },
+        }
         ,
         ...this.state.all,
       ],

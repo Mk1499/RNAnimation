@@ -58,7 +58,7 @@ export default class ListCard extends Component {
                   />
                   <Text style={styles.name}> {this.props.data.name} </Text>
                 </Left>
-                <Body></Body>
+                <Body />
                 <Icon name="logo-usd" />
                 <Right>
                   <Text style={styles.price}>{this.props.data.price}</Text>

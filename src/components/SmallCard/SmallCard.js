@@ -43,6 +43,19 @@ constructor(props){
           console.log("ASD: ",gestureState.y0)
           if(gestureState.dy>100)
           this._handleSelection();
+          else {
+            Animated.parallel([
+              Animated.spring(this.state.pan.x, {
+                toValue: 0,
+                bounciness: 10
+               }),
+              Animated.spring(this.state.pan.y, {
+                toValue: 0,
+                bounciness: 10
+               })
+            ]).start();
+            
+          }
           
         
         },
