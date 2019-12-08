@@ -7,7 +7,8 @@ import {
   Dimensions,
   Animated,
 } from 'react-native';
-import {Icon, Card, CardItem, Content, Left, Body, Right} from 'native-base';
+import {Icon, Card, CardItem, Left, Right} from 'native-base';
+import Sound from 'react-native-sound';
 
 const {height: Height, width: Width} = Dimensions.get('screen');
 export default class Footer extends Component {
@@ -17,9 +18,38 @@ export default class Footer extends Component {
       footerHeight: new Animated.Value(100),
       clicked: false,
     };
+
+    Sound.setCategory('Playback');
   }
+
+  // Send Button Clicked
   btnClicked = () => {
-    // alert("Clicked") ;
+    // Play Success tone
+    let successURI = require('../../assets/audio/success.mp3');
+    let successSound = new Sound(successURI, error => {
+      if (error) {
+        console.log('failed to load the sound', error);
+        return;
+      }
+      // loaded successfully
+      console.log(
+        'duration in seconds: ' +
+          successSound.getDuration() +
+          'number of channels: ' +
+          successSound.getNumberOfChannels(),
+      );
+
+      // Play the sound with an onEnd callback
+      successSound.play(success => {
+        if (success) {
+          console.log('successfully finished playing');
+        } else {
+          console.log('playback failed due to audio decoding errors');
+        }
+      });
+    });
+
+    // Start Animation
     Animated.parallel([
       Animated.timing(this.state.footerHeight, {
         toValue: 1000,
@@ -87,14 +117,12 @@ const styles = StyleSheet.create({
     borderRadius: 0.15 * Width,
     alignItems: 'center',
     justifyContent: 'center',
-},
-doneIcon: {
+  },
+  doneIcon: {
     color: '#eee',
-    borderWidth:1,
-    borderColor:"#eee",
-    padding:20,
-    borderRadius:0.15 * Width
-    
-
+    borderWidth: 1,
+    borderColor: '#eee',
+    padding: 20,
+    borderRadius: 0.15 * Width,
   },
 });

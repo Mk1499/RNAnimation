@@ -16,6 +16,8 @@ import SmallCard from '../../components/SmallCard/SmallCard';
 import ListCard from '../../components/ListCard/ListCard';
 import Footer from '../../components/Footer/Footer';
 
+import Sound from 'react-native-sound';
+
 const {height: Height, width: Width} = Dimensions.get('screen');
 
 export default class Main extends Component {
@@ -28,6 +30,8 @@ export default class Main extends Component {
       totalAmount: 0,
       lastId: 3,
     };
+
+    Sound.setCategory('Playback');
   }
 
   componentDidMount() {
@@ -59,14 +63,20 @@ export default class Main extends Component {
     });
   }
 
+  // select task
   _handleSelect = player => {
     // alert(player.name)
+
+    this.playSound();
+
     this.setState({
       all: this.state.all.filter(p => p.id != player.id),
       selected: [player, ...this.state.selected],
       totalAmount: this.state.totalAmount + player.price,
     });
   };
+
+  // add new task
   addTask = () => {
     this.setState({
       all: [
@@ -76,8 +86,7 @@ export default class Main extends Component {
           img:
             'https://i.pinimg.com/originals/11/47/03/1147038facc1a5e886aa7be517c9e319.jpg',
           price: 123,
-        }
-        ,
+        },
         ...this.state.all,
       ],
       lastId: this.state.lastId + 1,
@@ -85,10 +94,38 @@ export default class Main extends Component {
   };
 
   _handleDeSelect = player => {
+    this.playSound();
+
     this.setState({
       selected: this.state.selected.filter(p => p.id != player.id),
       all: [player, ...this.state.all],
       totalAmount: this.state.totalAmount - player.price,
+    });
+  };
+
+  playSound = () => {
+    const selectURI = require('../../assets/audio/paper.mp3');
+    let selectSound = new Sound(selectURI, error => {
+      if (error) {
+        console.log('failed to load the sound', error);
+        return;
+      }
+      // loaded successfully
+      console.log(
+        'duration in seconds: ' +
+          selectSound.getDuration() +
+          'number of channels: ' +
+          selectSound.getNumberOfChannels(),
+      );
+
+      // Play the sound with an onEnd callback
+      selectSound.play(success => {
+        if (success) {
+          console.log('successfully finished playing');
+        } else {
+          console.log('playback failed due to audio decoding errors');
+        }
+      });
     });
   };
 
